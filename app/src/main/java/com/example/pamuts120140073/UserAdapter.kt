@@ -8,15 +8,19 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class UserAdapter(private var originalUserList: List<User>) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+interface OnUserItemClickListener {
+    fun onUserItemClick(user: User)
+}
+
+class UserAdapter(
+    private var originalUserList: List<User>,
+    private val clickListener: OnUserItemClickListener
+) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
 
     private var filteredUserList: List<User> = originalUserList
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup, viewType: Int): UserViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.item_user, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         return UserViewHolder(view)
     }
 
@@ -47,20 +51,27 @@ class UserAdapter(private var originalUserList: List<User>) : RecyclerView.Adapt
         notifyDataSetChanged()
     }
 
-    inner class UserViewHolder(itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
-        private val avatarImageView: ImageView =
-            itemView.findViewById(R.id.avatarImageView)
-        private val nameTextView: TextView =
-            itemView.findViewById(R.id.nameTextView)
-        private val emailTextView: TextView =
-            itemView.findViewById(R.id.emailTextView)
+    inner class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        private val avatarImageView: ImageView = itemView.findViewById(R.id.avatarImageView)
+        private val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
+        private val emailTextView: TextView = itemView.findViewById(R.id.emailTextView)
+
+        init {
+            itemView.setOnClickListener(this)
+        }
 
         fun bind(user: User) {
-            Glide.with(itemView.context).load(
-                user.avatar).into(avatarImageView)
+            Glide.with(itemView.context).load(user.avatar).into(avatarImageView)
             nameTextView.text = "${user.first_name} ${user.last_name}"
             emailTextView.text = user.email
+        }
+
+        override fun onClick(v: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                val user = filteredUserList[position]
+                clickListener.onUserItemClick(user)
+            }
         }
     }
 }

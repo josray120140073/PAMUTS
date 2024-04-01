@@ -56,6 +56,7 @@ class ProfileFragment : Fragment() {
                         val username = user?.get("username").toString()
                         val initial = username.firstOrNull()?.toUpperCase()
                         binding.textViewInitial.text = initial.toString()
+                        binding.textViewUsername.text = username
                     } else {
                         // Dokumen tidak ditemukan atau kosong
                     }
